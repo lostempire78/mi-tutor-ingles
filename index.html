@@ -2,60 +2,370 @@
 <html lang="es">
 <head>
   <meta charset="UTF-8">
-  <title>Mi Tutor de Inglés con IA</title>
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Practica Inglés B1</title>
   <style>
-    body { font-family: sans-serif; text-align: center; margin: 2rem; background: #f9fafb; }
-    button { background: #2563eb; color: white; border: none; padding: 0.6rem 1.2rem; border-radius: 8px; cursor: pointer; margin-top: 1rem; }
-    button:hover { background: #1e40af; }
-    #output { margin-top: 1rem; background: #eef2ff; padding: 1rem; border-radius: 8px; text-align: left; white-space: pre-wrap; }
+    body { font-family: Arial, sans-serif; padding: 20px; }
+    h2 { color: #2c3e50; }
+    ul { list-style: none; padding-left: 0; }
+    li { margin-bottom: 5px; }
+    hr { margin: 20px 0; }
   </style>
 </head>
 <body>
-  <h1>📘 Mi Tutor de Inglés con Gemini</h1>
-  <p>Sube una foto de tu libro, y la IA te explicará vocabulario, gramática y listening.</p>
+  <h1>Ejercicios diarios de inglés B1</h1>
+  <div id="output"></div>
 
-  <input type="file" id="fileInput" accept="image/*">
-  <br>
-  <button id="analyze">Analizar imagen</button>
-
-  <div id="output">Aquí aparecerá el resultado...</div>
-
-  <script type="module">
-    import { GoogleGenerativeAI } from "https://esm.run/@google/generative-ai";
-
-    // 👇 Pega aquí tu clave API entre comillas
-    const API_KEY = "AIzaSyAhpHSmyoXtkV_VYnqJdVHu7NYiEkv3gtM";
-
-    const genAI = new GoogleGenerativeAI(API_KEY);
-    const model = genAI.getGenerativeModel({ model: "gemini-1.5-pro" });
-
-    document.getElementById("analyze").onclick = async () => {
-      const file = document.getElementById("fileInput").files[0];
-      if (!file) return alert("Primero sube una imagen de tu libro 📸");
-
-      document.getElementById("output").innerText = "Analizando imagen... ⏳";
-
-      const prompt = `
-Eres un profesor de inglés. Analiza la imagen y responde con:
-1️⃣ Vocabulario importante (en inglés y español).
-2️⃣ Qué tema de gramática aparece.
-3️⃣ Un texto corto tipo listening sobre ese tema.
-      `;
-
-      try {
-        const imageBytes = await file.arrayBuffer();
-        const result = await model.generateContent([
-          prompt,
-          { inlineData: { data: imageBytes, mimeType: file.type } }
-        ]);
-        const text = await result.response.text();
-        document.getElementById("output").innerText = text;
-      } catch (err) {
-        console.error(err);
-        document.getElementById("output").innerText = "❌ Ocurrió un error al conectar con Gemini.";
+  <script>
+    // Pega aquí tu JSON
+    const data = /* [
+  {
+    "image_name": "1A_How_we_eat",
+    "explicacion": "Esta página introduce vocabulario sobre comida y cocina. También incluye preguntas para describir tus hábitos alimenticios y preferencias, lo que se conoce como tu 'perfil de comida'.",
+    "vocabulario": [
+      {"ingles": "ready meals", "espanol": "comidas preparadas"},
+      {"ingles": "takeaways", "espanol": "comida para llevar"},
+      {"ingles": "spicy", "espanol": "picante"},
+      {"ingles": "allergic to", "espanol": "alérgico/a a"},
+      {"ingles": "intolerant to", "espanol": "intolerante a"},
+      {"ingles": "to cheer yourself up", "espanol": "animarse"},
+      {"ingles": "frozen", "espanol": "congelado"},
+      {"ingles": "low-fat", "espanol": "bajo en grasa"},
+      {"ingles": "raw", "espanol": "crudo"},
+      {"ingles": "tinned", "espanol": "enlatado"}
+    ],
+    "gramatica": "Las preguntas de esta sección usan principalmente el 'Present Simple' (por ejemplo, 'What's your favourite...?', 'Do you ever have...?') porque se utiliza para hablar de hábitos, rutinas y verdades generales, como tus gustos y preferencias alimenticias.",
+    "reading": [
+      {
+        "texto": "Lee este perfil de comida: 'My favourite food is Italian. I love pizza, but I don't like spicy toppings like pepperoni. I rarely order takeaways because I enjoy cooking. When I'm feeling sad, I usually eat some chocolate to cheer myself up. I'm not allergic to any food, but I am intolerant to milk.'",
+        "pregunta": "True or False: The person often eats takeaways when they are sad.",
+        "respuesta_correcta": "False. The person eats chocolate to cheer themselves up and rarely orders takeaways."
       }
-    };
+    ],
+    "listening": [
+      {
+        "texto": "Listen to this person talking: 'I try to eat healthy during the week. I usually have a big salad for lunch with fresh vegetables and some grilled chicken. I avoid raw fish, but I love tinned tuna. At the weekend, I sometimes buy ready meals from the supermarket if I'm too tired to cook.'",
+        "actividad": "Escribe dos tipos de comida que la persona menciona."
+      }
+    ],
+    "ejercicios": [
+      {
+        "tipo": "rellenar_huecos",
+        "pregunta": "I can't eat peanuts because I'm ______ to them.",
+        "respuesta": "allergic"
+      },
+      {
+        "tipo": "multiple_choice",
+        "pregunta": "Food that is kept very cold is...",
+        "opciones": ["raw", "frozen", "tinned"],
+        "respuesta_correcta": "frozen"
+      },
+      {
+        "tipo": "rellenar_huecos",
+        "pregunta": "Let's order a ______ tonight. I don't want to cook.",
+        "respuesta": "takeaway"
+      }
+    ]
+  },
+  {
+    "image_name": "Reading_How_you_should_eat",
+    "explicacion": "La página contiene un artículo con seis nuevas 'reglas' o consejos sobre cómo y cuándo comer para estar más sano. También introduce el concepto de 'compound nouns' (nombres compuestos).",
+    "vocabulario": [
+      {"ingles": "blood sugar", "espanol": "azúcar en sangre"},
+      {"ingles": "digest", "espanol": "digerir"},
+      {"ingles": "chew", "espanol": "masticar"},
+      {"ingles": "on the run", "espanol": "sobre la marcha / deprisa"},
+      {"ingles": "impaired", "espanol": "afectado / deteriorado"},
+      {"ingles": "overweight", "espanol": "con sobrepeso"},
+      {"ingles": "blood pressure", "espanol": "presión arterial"}
+    ],
+    "gramatica": "La sección destaca los 'compound nouns'. Un 'compound noun' es una palabra formada por dos sustantivos que funcionan como una sola idea. El primer sustantivo describe al segundo. Por ejemplo, en 'coffee machine', 'coffee' nos dice qué tipo de máquina es. El acento principal suele recaer en la primera palabra.",
+    "reading": [
+      {
+        "pregunta": "According to the text, why is it better to eat vegetables before the main part of the meal?",
+        "respuesta_correcta": "Because vegetables are very filling, which helps you eat less overall."
+      },
+      {
+        "pregunta": "What is the negative effect of drinking coffee as soon as you wake up?",
+        "respuesta_correcta": "It can impair your blood sugar control."
+      }
+    ],
+    "listening": [
+      {
+        "texto": "One of the key tips for better digestion is to spend more time chewing your food. A study found that chewing each mouthful for thirty seconds, instead of the usual fifteen, can help with high blood pressure and heart disease. It's a small change that can make a big difference.",
+        "actividad": "Según el texto, ¿cuántos segundos deberías masticar la comida para mejorar tu salud?"
+      }
+    ],
+    "ejercicios": [
+      {
+        "tipo": "multiple_choice",
+        "pregunta": "Which of these is a 'compound noun'?",
+        "opciones": ["big difference", "heart disease", "eat slowly"],
+        "respuesta_correcta": "heart disease"
+      },
+      {
+        "tipo": "rellenar_huecos",
+        "pregunta": "If you eat your lunch 'on the ______', it means you eat it quickly while doing something else.",
+        "respuesta": "run"
+      },
+      {
+        "tipo": "transformar_frase",
+        "pregunta": "Create a compound noun using 'blood' and 'pressure'.",
+        "respuesta": "blood pressure"
+      }
+    ]
+  },
+  {
+    "image_name": "Listening_Marianna_Leivaditaki",
+    "explicacion": "Esta página presenta a Marianna Leivaditaki, una chef y escritora de libros de cocina. El texto es una breve biografía que sirve de introducción a una actividad de 'listening' sobre su vida y su carrera.",
+    "vocabulario": [
+      {"ingles": "chef", "espanol": "chef / cocinero/a"},
+      {"ingles": "food consultant", "espanol": "asesor/a gastronómico/a"},
+      {"ingles": "seafood", "espanol": "marisco / pescado"},
+      {"ingles": "cookbook", "espanol": "libro de cocina"},
+      {"ingles": "dishes", "espanol": "platos"},
+      {"ingles": "inspiration", "espanol": "inspiración"},
+      {"ingles": "traditional", "espanol": "tradicional"}
+    ],
+    "gramatica": "El texto utiliza principalmente el 'Past Simple' para describir la historia y los antecedentes de Marianna ('She was born in Crete', 'Her father was a fisherman'). El 'Past Simple' es fundamental para narrar eventos y biografías, hablando de acciones que empezaron y terminaron en el pasado.",
+    "reading": [
+      {
+        "pregunta": "Where did Marianna first learn to cook seafood?",
+        "respuesta_correcta": "She learned from her father on his fishing boat."
+      },
+      {
+        "pregunta": "What does Marianna try to do when she creates new dishes?",
+        "respuesta_correcta": "She combines traditional and old ideas with new ones to create something different."
+      }
+    ],
+    "listening": [
+      {
+        "texto": "For me, cooking is all about memory. I remember the smell of the sea and the fresh fish my father used to bring home. My mother taught me how to respect the ingredients. Now, when I am in my kitchen, I try to bring those memories into my dishes. It's a way of travelling back to my childhood in Crete.",
+        "actividad": "¿Qué dos personas fueron las primeras influencias de Marianna en la cocina?"
+      }
+    ],
+    "ejercicios": [
+      {
+        "tipo": "rellenar_huecos",
+        "pregunta": "Marianna is the author of a ______ called 'Aegean'.",
+        "respuesta": "cookbook"
+      },
+      {
+        "tipo": "multiple_choice",
+        "pregunta": "Where does Marianna get inspiration for her new dishes?",
+        "opciones": ["from old books", "from her family", "from travelling and people"],
+        "respuesta_correcta": "from travelling and people"
+      },
+      {
+        "tipo": "rellenar_huecos",
+        "pregunta": "Her father was a Greek fisherman and her mother was ______.",
+        "respuesta": "Scottish"
+      }
+    ]
+  },
+  {
+    "image_name": "Grammar_Present_simple_continuous",
+    "explicacion": "La página se centra en la gramática, específicamente en las diferencias de uso entre el 'present simple', el 'present continuous' y los 'non-action verbs'. Se utilizan ejemplos de una entrevista para ilustrar las reglas.",
+    "vocabulario": [
+      {"ingles": "collect", "espanol": "coleccionar / recopilar"},
+      {"ingles": "recipe", "espanol": "receta"},
+      {"ingles": "notebook", "espanol": "cuaderno / libreta"},
+      {"ingles": "life journal", "espanol": "diario de vida"},
+      {"ingles": "cherish", "espanol": "apreciar / guardar con cariño"},
+      {"ingles": "agree / disagree", "espanol": "estar de acuerdo / en desacuerdo"}
+    ],
+    "gramatica": "La regla principal es la diferencia entre 'Present Simple' y 'Present Continuous'. Usamos 'Present Simple' para hábitos, rutinas y hechos (ej: 'I collect recipes'). Usamos 'Present Continuous' para acciones que ocurren en el momento de hablar o situaciones temporales (ej: 'Now I'm doing a lot of different things'). Además, los 'non-action verbs' (verbos de estado como 'love', 'have' -tener-, 'be') normalmente no se usan en la forma continua.",
+    "reading": [
+      {
+        "texto": "Read this diary entry: 'I usually work from home, but this week I am travelling for a conference. I think conferences are very useful. Right now, I am sitting in the hotel cafe and preparing my presentation. I love my job because every week is different.'",
+        "pregunta": "Why is the person travelling this week?",
+        "respuesta_correcta": "For a conference."
+      }
+    ],
+    "listening": [
+      {
+        "texto": "Hi Sarah, it's Mark. What are you doing? I'm just watching a film. Do you normally watch films on a Monday? Not really, but I don't have any work today, so I'm relaxing. What about you?",
+        "actividad": "¿Por qué la persona está viendo una película un lunes?"
+      }
+    ],
+    "ejercicios": [
+      {
+        "tipo": "multiple_choice",
+        "pregunta": "I used to collect recipes in my blue notebook, which I still ______.",
+        "opciones": ["am having", "have"],
+        "respuesta_correcta": "have"
+      },
+      {
+        "tipo": "rellenar_huecos",
+        "pregunta": "'What's for dinner?' 'I ______ a new pasta recipe tonight.'",
+        "respuesta": "am trying / 'm trying"
+      },
+      {
+        "tipo": "multiple_choice",
+        "pregunta": "He ______ that all restaurants should serve free water.",
+        "opciones": ["is thinking", "thinks"],
+        "respuesta_correcta": "thinks"
+      }
+    ]
+  },
+  {
+    "image_name": "1B_Happy_families",
+    "explicacion": "Esta sección trata sobre el vocabulario relacionado con la familia y las diferentes estructuras familiares modernas. También presenta datos y estadísticas sobre las familias en el Reino Unido para iniciar una conversación.",
+    "vocabulario": [
+      {"ingles": "stepmother", "espanol": "madrastra"},
+      {"ingles": "an only child", "espanol": "hijo/a único/a"},
+      {"ingles": "extended family", "espanol": "familia extendida (tíos, primos, etc.)"},
+      {"ingles": "blended family", "espanol": "familia reconstituida o ensamblada"},
+      {"ingles": "get married", "espanol": "casarse"},
+      {"ingles": "single parent", "espanol": "padre/madre soltero/a"},
+      {"ingles": "argue about", "espanol": "discutir sobre"}
+    ],
+    "gramatica": "El texto utiliza el 'Present Simple' para presentar hechos y estadísticas sobre las familias. Por ejemplo: '10% of single parents are men' o '25% of people aged 20-34 live with their parents'. Este tiempo verbal es el adecuado para hablar de datos y situaciones que son verdades generales en el presente.",
+    "reading": [
+      {
+        "texto": "Read about the Smith family: 'The Smith family is a blended family. Sarah has two children from her first marriage, and her new husband, Tom, has one daughter. Together, they have one more child. They are a big family now and they rarely eat together because everyone has different schedules.'",
+        "pregunta": "How many children are there in the Smith family in total?",
+        "respuesta_correcta": "There are four children in total."
+      }
+    ],
+    "listening": [
+      {
+        "texto": "My family is quite small. It's just my parents, my sister and me. I'm very close to my extended family, though. We see my grandparents, aunts, uncles and cousins almost every month. It's nice because I am an only child, so my cousins are like my brothers and sisters.",
+        "actividad": "¿Por qué la persona se siente feliz de ver a su familia extendida?"
+      }
+    ],
+    "ejercicios": [
+      {
+        "tipo": "rellenar_huecos",
+        "pregunta": "A family with children from previous relationships is called a ______ family.",
+        "respuesta": "blended"
+      },
+      {
+        "tipo": "multiple_choice",
+        "pregunta": "Your immediate family is your parents, brothers and sisters. Your ______ family includes your grandparents, cousins, etc.",
+        "opciones": ["blended", "extended", "single"],
+        "respuesta_correcta": "extended"
+      },
+      {
+        "tipo": "rellenar_huecos",
+        "pregunta": "According to the text, what percentage of British families only eat together once or twice a week?",
+        "respuesta": "25%"
+      }
+    ]
+  },
+  {
+    "image_name": "Grammar_Bank_1A_Detailed",
+    "explicacion": "Esta es una página de referencia gramatical detallada. Explica en profundidad las reglas y usos del 'present simple' y el 'present continuous', y proporciona listas de 'action verbs', 'non-action verbs' y verbos que pueden ser ambos, dependiendo del contexto.",
+    "vocabulario": [
+      {"ingles": "nowadays", "espanol": "hoy en día"},
+      {"ingles": "at the moment", "espanol": "en este momento"},
+      {"ingles": "believe", "espanol": "creer"},
+      {"ingles": "belong", "espanol": "pertenecer"},
+      {"ingles": "realize", "espanol": "darse cuenta"},
+      {"ingles": "suppose", "espanol": "suponer"},
+      {"ingles": "recognize", "espanol": "reconocer"}
+    ],
+    "gramatica": "La regla clave es: 'Present Simple' para cosas que son siempre o generalmente ciertas (hechos, hábitos). 'Present Continuous' para acciones que están sucediendo ahora o alrededor de ahora (temporales). Los 'Non-action verbs' describen estados (sentimientos, pensamientos, sentidos) y no se usan en 'continuous'. Por ejemplo, dices 'I understand' y no 'I am understanding'. Algunos verbos como 'have' o 'think' pueden ser de acción o no acción con significados diferentes.",
+    "reading": [
+      {
+        "texto": "Hi Alex, How are things? I'm writing to you from my new flat in Manchester. I really like it here, but I'm still getting used to the weather! I have a new job at a hospital. I usually work during the day, but this week I'm working the night shift. It's strange! What are you doing these days?",
+        "pregunta": "Is the person's night shift permanent or temporary?",
+        "respuesta_correcta": "It's temporary ('this week I'm working...')."
+      }
+    ],
+    "listening": [
+      {
+        "texto": "A: Hello? B: Hi, it's me. Sorry to call so late. Are you busy? A: No, not at all. I'm just making some tea. I usually go to bed around eleven. B: Oh, okay. I just need to ask you something about tomorrow's meeting. Do you have a moment?",
+        "actividad": "¿Qué hace la persona A normalmente a las once?"
+      }
+    ],
+    "ejercicios": [
+      {
+        "tipo": "multiple_choice",
+        "pregunta": "I ______ you are right, but I don't agree.",
+        "opciones": ["am knowing", "know"],
+        "respuesta_correcta": "know"
+      },
+      {
+        "tipo": "rellenar_huecos",
+        "pregunta": "Please be quiet. I ______ to concentrate on my homework.",
+        "respuesta": "am trying / 'm trying"
+      },
+      {
+        "tipo": "multiple_choice",
+        "pregunta": "What is your sister doing? She ______ a shower.",
+        "opciones": ["has", "is having"],
+        "respuesta_correcta": "is having"
+      },
+      {
+        "tipo": "rellenar_huecos",
+        "pregunta": "We don't go to Chinese restaurants very often, so I ______ fried food.",
+        "respuesta": "never eat"
+      }
+    ]
+  }
+] */;
+
+    const output = document.getElementById("output");
+    output.innerHTML = "";
+
+    data.forEach(item => {
+      // Nombre de la imagen
+      const h2 = document.createElement("h2");
+      h2.textContent = `📸 ${item.image_name}`;
+      output.appendChild(h2);
+
+      // Explicación
+      const exp = document.createElement("p");
+      exp.innerHTML = `<strong>Explicación:</strong> ${item.explicacion}`;
+      output.appendChild(exp);
+
+      // Vocabulario
+      const vocab = document.createElement("ul");
+      vocab.innerHTML = "<strong>Vocabulario:</strong>";
+      item.vocabulario.forEach(v => {
+        const li = document.createElement("li");
+        li.textContent = `${v.ingles} → ${v.espanol}`;
+        vocab.appendChild(li);
+      });
+      output.appendChild(vocab);
+
+      // Gramática
+      const gram = document.createElement("p");
+      gram.innerHTML = `<strong>Gramática:</strong> ${item.gramatica}`;
+      output.appendChild(gram);
+
+      // Reading
+      const reading = document.createElement("ul");
+      reading.innerHTML = "<strong>Reading:</strong>";
+      item.reading.forEach(r => {
+        const li = document.createElement("li");
+        li.textContent = `${r.texto || r.pregunta} → ${r.respuesta_correcta}`;
+        reading.appendChild(li);
+      });
+      output.appendChild(reading);
+
+      // Listening
+      const listening = document.createElement("ul");
+      listening.innerHTML = "<strong>Listening:</strong>";
+      item.listening.forEach(l => {
+        const li = document.createElement("li");
+        li.textContent = `${l.texto} (${l.actividad})`;
+        listening.appendChild(li);
+      });
+      output.appendChild(listening);
+
+      // Ejercicios
+      const ejercicios = document.createElement("ul");
+      ejercicios.innerHTML = "<strong>Ejercicios:</strong>";
+      item.ejercicios.forEach(e => {
+        const li = document.createElement("li");
+        li.textContent = `${e.tipo}: ${e.pregunta} → ${e.respuesta || e.respuesta_correcta}`;
+        ejercicios.appendChild(li);
+      });
+      output.appendChild(ejercicios);
+
+      output.appendChild(document.createElement("hr"));
+    });
   </script>
 </body>
 </html>
