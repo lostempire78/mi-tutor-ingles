@@ -1,0 +1,61 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <title>Mi Tutor de Inglés con IA</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <style>
+    body { font-family: sans-serif; text-align: center; margin: 2rem; background: #f9fafb; }
+    button { background: #2563eb; color: white; border: none; padding: 0.6rem 1.2rem; border-radius: 8px; cursor: pointer; margin-top: 1rem; }
+    button:hover { background: #1e40af; }
+    #output { margin-top: 1rem; background: #eef2ff; padding: 1rem; border-radius: 8px; text-align: left; white-space: pre-wrap; }
+  </style>
+</head>
+<body>
+  <h1>📘 Mi Tutor de Inglés con Gemini</h1>
+  <p>Sube una foto de tu libro, y la IA te explicará vocabulario, gramática y listening.</p>
+
+  <input type="file" id="fileInput" accept="image/*">
+  <br>
+  <button id="analyze">Analizar imagen</button>
+
+  <div id="output">Aquí aparecerá el resultado...</div>
+
+  <script type="module">
+    import { GoogleGenerativeAI } from "https://esm.run/@google/generative-ai";
+
+    // 👇 Pega aquí tu clave API entre comillas
+    const API_KEY = "AIzaSyAhpHSmyoXtkV_VYnqJdVHu7NYiEkv3gtM";
+
+    const genAI = new GoogleGenerativeAI(API_KEY);
+    const model = genAI.getGenerativeModel({ model: "gemini-1.5-pro" });
+
+    document.getElementById("analyze").onclick = async () => {
+      const file = document.getElementById("fileInput").files[0];
+      if (!file) return alert("Primero sube una imagen de tu libro 📸");
+
+      document.getElementById("output").innerText = "Analizando imagen... ⏳";
+
+      const prompt = `
+Eres un profesor de inglés. Analiza la imagen y responde con:
+1️⃣ Vocabulario importante (en inglés y español).
+2️⃣ Qué tema de gramática aparece.
+3️⃣ Un texto corto tipo listening sobre ese tema.
+      `;
+
+      try {
+        const imageBytes = await file.arrayBuffer();
+        const result = await model.generateContent([
+          prompt,
+          { inlineData: { data: imageBytes, mimeType: file.type } }
+        ]);
+        const text = await result.response.text();
+        document.getElementById("output").innerText = text;
+      } catch (err) {
+        console.error(err);
+        document.getElementById("output").innerText = "❌ Ocurrió un error al conectar con Gemini.";
+      }
+    };
+  </script>
+</body>
+</html>
